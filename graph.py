@@ -1,4 +1,5 @@
 import numpy as np
+from heapq import heappop, heappush
 
 
 #TODO research how to make a visual respresntaion of this A*
@@ -113,7 +114,7 @@ class Graph():
                                 current_node.set_neighbor((j, i))
                                 
                                 
-    def define_rect_object(self, from_index: tuple, to_index: tuple):
+    def define_rect_object(self, from_index: tuple, to_index: tuple, clear:bool = False):
         """Creates a blocking oject that prevents path traversal
         
         Current design has all object nodes dropping relations to other nodes.
@@ -130,15 +131,28 @@ class Graph():
         y_min = min([from_index[0], to_index[0]])
         y_max = max([from_index[0], to_index[0]])
         
-        # iterate through neighbors of each object node and remove relationship
-        for j in range(y_min, y_max + 1):
-            for i in range(x_min, x_max + 1):
-                current_node = self.node_log[(j, i)]
-                current_node.value = None
-                self.grid[j][i] = None
-                for neighbor in current_node.neighbor:
-                    current_node.drop_neighbor(neighbor)
-                    self.node_log[neighbor].drop_neighbor((j, i))
+        if not clear:
+            # iterate through neighbors of each object node and remove relationship
+            for j in range(y_min, y_max + 1):
+                for i in range(x_min, x_max + 1):
+                    current_node = self.node_log[(j, i)]
+                    current_node.value = None
+                    self.grid[j][i] = None
+                    for neighbor in current_node.neighbor:
+                        # current_node.drop_neighbor(neighbor)
+                        self.node_log[neighbor].drop_neighbor((j, i))
+                        
+        else:
+            # iterate through neighbors of each object node and remove relationship
+            for j in range(y_min, y_max + 1):
+                for i in range(x_min, x_max + 1):
+                    current_node = self.node_log[(j, i)]
+                    current_node.value = np.inf
+                    self.grid[j][i] = np.inf
+                    for neighbor in current_node.neighbor:
+                        # current_node.set_neighbor(neighbor)
+                        self.node_log[neighbor].set_neighbor((j, i))
+                    
                     
     
     # TODO implement a min heap or something to track 
@@ -155,38 +169,63 @@ class Graph():
         Returns:
             list: list containing path of nodes (y, x) from start to finish
         """
-
-        to_explore = []
-        visited = []
-        to_explore.append(from_node)
+        dist_between_nodes = 1
+        count = 0
+        paths_and_distances = {}
+        for coord, node in self.node_log.items():
+            paths_and_distances[node.position] = [node.value, [node.position]]
+            
+        paths_and_distances[from_node][0] = 0
+        vertices_to_explore = [(0, from_node)]
+        self.grid[from_node[0]][from_node[1]] = self.h(from_node, to_node)
         
-        while to_explore:
-            current_node = # find the min value from heap as next node
-            if current_node == to_node:
-                visited.append(current_node)
-                break
-            
+        while vertices_to_explore and paths_and_distances[to_node][0] == np.inf:
+            current_distance, current_node = heappop(vertices_to_explore)
             for neighbor in self.node_log[current_node].neighbor:
-                current_cost = (self.h(neighbor, to_node) + 
-                                        self.h(neighbor, from_node))
-                # if neighbor in to_explore:
-                if current_cost < self.node_log[neighbor].value:
-                    self.node_log[neighbor].value = current_cost
-                
-                if neighbor not in visited:
-                    to_explore.append(neighbor)
-                    
-            visited.append(current_node)
-            to_explore.remove(current_node)
+                new_distance = current_distance + dist_between_nodes + self.h(neighbor, to_node)
+                new_path = paths_and_distances[current_node][1] + [self.node_log[neighbor].position]
             
-        if current_node != to_node:
-            raise AttributeError("No path to goal!")
+                if new_distance < paths_and_distances[neighbor][0]:
+                    paths_and_distances[neighbor][0] = new_distance
+                    paths_and_distances[neighbor][1] = new_path
+                    heappush(vertices_to_explore, (new_distance, neighbor))
+                    count += 1
+                    self.grid[neighbor[0]][neighbor[1]] = new_distance
+                
+                
+        print("Found a path from {0} to {1} in {2} steps: ".format(from_node, to_node, count), paths_and_distances[to_node][1])
+    
+        return paths_and_distances[to_node][1]
+
+        
+        # while to_explore:
+        #     current_node = None# find the min value from heap as next node
+        #     if current_node == to_node:
+        #         visited.append(current_node)
+        #         break
+            
+        #     for neighbor in self.node_log[current_node].neighbor:
+        #         current_cost = (self.h(neighbor, to_node) + 
+        #                                 self.h(neighbor, from_node))
+        #         # if neighbor in to_explore:
+        #         if current_cost < self.node_log[neighbor].value:
+        #             self.node_log[neighbor].value = current_cost
+                
+        #         if neighbor not in visited:
+        #             to_explore.append(neighbor)
+                    
+        #     visited.append(current_node)
+        #     to_explore.remove(current_node)
+            
+        # if current_node != to_node:
+        #     raise AttributeError("No path to goal!")
                 
         
         
     
     def h(self, from_index: tuple, to_index: tuple):
         # returns heuristic distance between two nodes
+        # print("h is from", from_index, "to", to_index, ": ", np.sqrt((to_index[1] - from_index[1])**2 + (to_index[0] - from_index[0])**2))
         return np.sqrt((to_index[1] - from_index[1])**2 + (to_index[0] - from_index[0])**2)
     
         
