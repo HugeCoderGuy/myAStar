@@ -1,2 +1,4 @@
 # myAStar
-Building up my own A* package to familiarize myself with the path planning algorithm
+I've been on teams using A* in the past and inheriently became super interested in the algorithm. Most recently, I completed a course in "Data Structures and Algorithms" on CodeCademy where I learned a bit more about it. Finally, with a dash of free time, I decided to try and write it from scratch to secure the knowledge. An interactive output can be seen below:
+
+The code for the base Tkinter grid was pulled from stack exchange, but was heavily mosified for this learning experience. 
