@@ -1,6 +1,6 @@
 from tkinter import *
 from graph import Graph
-import time
+import numpy as np
 
 class Cell():
     FILLED_COLOR_BG =       "grey"
@@ -21,6 +21,14 @@ class Cell():
         self.ord = y
         self.size= size
         self.fill= False
+        
+        xmin = self.abs * self.size
+        xmax = xmin + self.size
+        ymin = self.ord * self.size
+        ymax = ymin + self.size
+        
+        self.average_x = int(xmin + xmax) / 2
+        self.average_y = int(ymin + ymax) / 2
 
     def _switch(self):
         """ Switch if the cell is filled or not. """
@@ -91,6 +99,13 @@ class Cell():
             ymax = ymin + self.size
 
             self.master.create_rectangle(xmin, ymin, xmax, ymax, fill = fill, outline = outline)
+            
+    def label(self, value):
+        self.text_id = self.master.create_text(self.average_x, self.average_y, text=str(value), fill="black", font=('Helvetica 6'))
+        
+    def clear_label(self):
+        self.master.delete(self.text_id)
+
 
 class CellGrid(Canvas):
     def __init__(self,master, rowNumber, columnNumber, cellSize, *args, **kwargs):
@@ -115,14 +130,14 @@ class CellGrid(Canvas):
         self.switched = []
 
         #bind click action
-        # self.bind("<Button-1>", self.handleMouseClick)  
+        self.bind("<Button-1>", self.handleMouseClick)  
         #bind moving while clicking
         self.bind("<B1-Motion>", self.handleMouseMotion)
         #bind release button action - clear the memory of midified cells.
         self.bind("<ButtonRelease-1>", lambda event: self.switched.clear())
         
         # TODO: search and see how to handle a right mouse click 
-        self.bind("<Button-1>", self.handle_start_and_end_points)
+        self.bind("<Button-3>", self.handle_start_and_end_points)
 
 
         self.draw()
@@ -186,10 +201,11 @@ class CellGrid(Canvas):
             cell._switch()
             cell.end_point()
             self.end_coord = (row, column)
-            
+
             self.route = self.graph.a_star(self.start_coord, self.end_coord)
             self.display_route(self.route)
-            print(self.graph.grid)
+            self.display_costs()
+
                         
         # reset state
         elif self.end_coord and self.start_coord:
@@ -201,6 +217,7 @@ class CellGrid(Canvas):
             end_cell._switch()
             end_cell.end_point()
             self.display_route(self.route)
+            self.clear_costs()
             
             self.end_coord = False
             self.start_coord = False
@@ -221,6 +238,18 @@ class CellGrid(Canvas):
                 route_cell = self.grid[step[0]][step[1]]
                 route_cell._switch()
                 route_cell.make_route()
+                
+    def display_costs(self):
+        for y, row in enumerate(self.grid):
+            for x, cell in enumerate(row):
+                cell.label(f'{self.graph.grid[y, x]:.1f}') 
+                
+    def clear_costs(self):
+        for y, row in enumerate(self.grid):
+            for x, cell in enumerate(row):
+                cell.clear_label() 
+                self.graph.grid[y, x] = np.inf
+
             
         
             
@@ -228,9 +257,9 @@ class CellGrid(Canvas):
 
 if __name__ == "__main__" :
     app = Tk()
-    size_x = 5
-    size_y = 5
-    cell_size = 25
+    size_x = 40
+    size_y = 20
+    cell_size = 30
 
     grid = CellGrid(app, size_y, size_x, cell_size)
     grid.pack()

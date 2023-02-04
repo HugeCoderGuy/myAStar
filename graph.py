@@ -56,7 +56,7 @@ class Graph():
                 # top right corner
                 elif x == self.x_bound and y == 0:
                     current_node.set_neighbor((0, self.x_bound - 1)) # node to left
-                    current_node.set_neighbor((1, 0)) # node below
+                    current_node.set_neighbor((1, self.x_bound)) # node below
                     current_node.set_neighbor((1, self.x_bound - 1)) # node adjacent
                 # bottom left node at corner
                 elif x == 0 and y == self.y_bound:
@@ -191,7 +191,7 @@ class Graph():
                     heappush(vertices_to_explore, (new_distance, neighbor))
                     count += 1
                     self.grid[neighbor[0]][neighbor[1]] = new_distance
-                
+        
                 
         print("Found a path from {0} to {1} in {2} steps: ".format(from_node, to_node, count), paths_and_distances[to_node][1])
     
