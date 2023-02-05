@@ -3,7 +3,6 @@ from cellGrid import CellGrid
 
             
 
-
 if __name__ == "__main__" :
     app = Tk()
     size_x = 40

@@ -2,7 +2,6 @@ import numpy as np
 from heapq import heappop, heappush
 
 
-#TODO research how to make a visual respresntaion of this A*
 class Node():
     def __init__(self, value: int, position: tuple):
         """Node class to represent graph data structure
@@ -191,41 +190,14 @@ class Graph():
                     heappush(vertices_to_explore, (new_distance, neighbor))
                     count += 1
                     self.grid[neighbor[0]][neighbor[1]] = new_distance
-        
                 
         print("Found a path from {0} to {1} in {2} steps: ".format(from_node, to_node, count), paths_and_distances[to_node][1])
     
         return paths_and_distances[to_node][1]
 
-        
-        # while to_explore:
-        #     current_node = None# find the min value from heap as next node
-        #     if current_node == to_node:
-        #         visited.append(current_node)
-        #         break
-            
-        #     for neighbor in self.node_log[current_node].neighbor:
-        #         current_cost = (self.h(neighbor, to_node) + 
-        #                                 self.h(neighbor, from_node))
-        #         # if neighbor in to_explore:
-        #         if current_cost < self.node_log[neighbor].value:
-        #             self.node_log[neighbor].value = current_cost
-                
-        #         if neighbor not in visited:
-        #             to_explore.append(neighbor)
-                    
-        #     visited.append(current_node)
-        #     to_explore.remove(current_node)
-            
-        # if current_node != to_node:
-        #     raise AttributeError("No path to goal!")
-                
-        
-        
     
     def h(self, from_index: tuple, to_index: tuple):
-        # returns heuristic distance between two nodes
-        # print("h is from", from_index, "to", to_index, ": ", np.sqrt((to_index[1] - from_index[1])**2 + (to_index[0] - from_index[0])**2))
+        """returns heuristic distance between two nodes"""
         return np.sqrt((to_index[1] - from_index[1])**2 + (to_index[0] - from_index[0])**2)
     
         
@@ -243,7 +215,6 @@ if __name__ == "__main__":
     print(graph.grid)
     print(graph.node_log[node_in_question].neighbor)
     
-    # help(np.full)
 
     
         

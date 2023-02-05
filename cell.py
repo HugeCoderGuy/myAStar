@@ -86,7 +86,7 @@ class Cell():
             self.master.create_rectangle(xmin, ymin, xmax, ymax, fill = fill, outline = outline)
             
     def make_route(self):
-        """ order to the cell to draw its representation on the canvas """
+        """Colors cell as blue route if apart of an A* route"""
         if self.master != None :
             fill = Cell.ROUTE_COLOR_BG
             outline = Cell.ROUTE_COLOR_BORDER
@@ -101,11 +101,17 @@ class Cell():
 
             self.master.create_rectangle(xmin, ymin, xmax, ymax, fill = fill, outline = outline)
             
-    def label(self, value):
+    def label(self, value: int):
+        """Labels the cell with it's wieght
+
+        Args:
+            value (int | str): the weight of the cell
+        """
         if value != str(np.inf) and value != str("nan"):
             self.text_id = self.master.create_text(self.average_x, self.average_y, text=str(value), fill="black", font=('Helvetica 6'))
         
     def clear_label(self):
+        """removes the label on the cell when path is removed from GUI"""
         if self.text_id:
             self.master.delete(self.text_id)
         else:
